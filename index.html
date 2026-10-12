@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockGen Studio — Generator Aset Stok Harian</title>
+<meta name="description" content="Buat badge, shape, background, dan pola vektor otomatis setiap hari. Unduh PNG/JPG manual atau otomatis, lengkap dengan metadata siap upload ke Adobe Stock.">
+<style>
+:root{
+  --bg:#0f1220; --panel:#171b2e; --panel2:#1e2340; --line:#2a3052;
+  --txt:#eef0ff; --muted:#9aa3c7; --acc:#f5b942; --acc2:#4f7cff; --ok:#3ddc84; --danger:#ff6b6b;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+header.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;padding:12px 20px;background:rgba(15,18,32,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.brand .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-weight:900;color:#10132a;font-size:20px}
+.brand h1{font-size:18px;letter-spacing:.3px}
+.brand small{display:block;color:var(--muted);font-size:11px;font-weight:400}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--txt);padding:9px 14px;border-radius:10px;cursor:pointer;font-size:13.5px;font-weight:600;transition:.15s}
+.btn:hover{border-color:var(--acc);transform:translateY(-1px)}
+.btn.primary{background:linear-gradient(135deg,var(--acc),#ff8a3d);border:none;color:#1a1405}
+.btn.blue{background:linear-gradient(135deg,var(--acc2),#7b5cff);border:none;color:#fff}
+.btn.ghost{background:transparent}
+.btn.small{padding:6px 10px;font-size:12px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+main{display:grid;grid-template-columns:300px 1fr;gap:16px;padding:16px 20px;max-width:1500px;margin:0 auto}
+aside.controls{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:18px;align-self:start;position:sticky;top:74px;max-height:calc(100vh - 90px);overflow:auto}
+.ctl h3{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:10px}
+.catgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.catchoice{border:2px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--muted);transition:.15s;background:var(--panel2)}
+.catchoice .ico{font-size:22px;display:block;margin-bottom:4px}
+.catchoice.active{border-color:var(--acc);color:var(--txt);background:#262c52}
+.palgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pal{border:2px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;transition:.15s}
+.pal.active{border-color:var(--acc)}
+.pal .sw{display:flex;height:30px}
+.pal .sw span{flex:1}
+.pal small{display:block;text-align:center;font-size:10px;padding:3px;color:var(--muted);background:var(--panel2)}
+.row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.row label{font-size:12.5px;color:var(--muted);flex:1}
+input[type=color]{width:38px;height:30px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:2px;cursor:pointer}
+input[type=text],input[type=number],textarea,select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit}
+textarea{resize:vertical;min-height:56px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+select{cursor:pointer}
+.switchrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:13px}
+.switch{position:relative;width:42px;height:24px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:var(--line);border-radius:24px;cursor:pointer;transition:.2s}
+.slider:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.switch input:checked + .slider{background:var(--ok)}
+.switch input:checked + .slider:before{transform:translateX(18px)}
+.hint{font-size:11.5px;color:var(--muted);line-height:1.5}
+.stage{min-width:0}
+.infobar{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;flex-wrap:wrap}
+.infobar .dot{width:10px;height:10px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.infobar b{font-size:14px}
+.infobar span{font-size:12.5px;color:var(--muted)}
+.infobar .sp{margin-left:auto;display:flex;gap:8px}
+#gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:.15s;display:flex;flex-direction:column}
+.card:hover{border-color:var(--acc2);transform:translateY(-2px)}
+.card .thumb{width:100%;aspect-ratio:1;object-fit:cover;background:#fff;display:block;cursor:pointer}
+.card .body{padding:10px 12px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card .ttl{font-size:12.5px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:34px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:10.5px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);padding:2px 8px;border-radius:20px}
+.chip.hot{color:var(--acc);border-color:var(--acc)}
+.card .actions{display:flex;gap:6px;margin-top:auto}
+.card .dlmark{font-size:11px;color:var(--ok);display:none}
+.card.done .dlmark{display:inline}
+.empty{grid-column:1/-1;text-align:center;padding:70px 20px;color:var(--muted);border:2px dashed var(--line);border-radius:var(--radius)}
+.empty .big{font-size:44px;margin-bottom:10px}
+.modal{position:fixed;inset:0;background:rgba(5,7,16,.78);display:none;align-items:center;justify-content:center;z-index:100;padding:18px}
+.modal.open{display:flex}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:860px;width:100%;max-height:92vh;overflow:auto;padding:22px}
+.sheet h2{font-size:18px;margin-bottom:4px}
+.sheet .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+.sheet .close{float:right}
+.detailgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.detailgrid canvas{width:100%;border-radius:12px;background:#fff;border:1px solid var(--line)}
+.kv{font-size:13px;margin-bottom:10px}
+.kv b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px}
+.steps{counter-reset:s;margin:12px 0;display:flex;flex-direction:column;gap:10px}
+.step{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.55}
+.step:before{counter-increment:s;content:"Langkah " counter(s);display:block;font-weight:700;color:var(--acc);font-size:12px;margin-bottom:4px}
+.step code{background:#0c0f1e;padding:2px 7px;border-radius:6px;font-size:12.5px;color:var(--acc)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:#232948;border:1px solid var(--acc);color:var(--txt);padding:11px 20px;border-radius:12px;font-size:13.5px;opacity:0;transition:.25s;z-index:200;pointer-events:none;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:26px 12px 40px;line-height:1.7}
+.progress{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:8px;display:none}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .3s}
+@media(max-width:900px){main{grid-template-columns:1fr}aside.controls{position:static;max-height:none}.detailgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">S</div>
+    <h1>StockGen Studio<small>Generator aset stok harian • siap Adobe Stock</small></h1>
+  </div>
+  <button class="btn primary" id="btnDaily">📦 Paket Harian</button>
+  <button class="btn" id="btnZip">🗜️ Unduh ZIP</button>
+  <button class="btn" id="btnCsv">📄 CSV Metadata</button>
+  <button class="btn ghost" id="btnGuide">❓ Panduan</button>
+</header>
+
+<main>
+  <aside class="controls">
+    <div class="ctl">
+      <h3>🎨 Kategori Aset</h3>
+      <div class="catgrid" id="catGrid">
+        <div class="catchoice active" data-cat="badge"><span class="ico">🏅</span>Badge</div>
+        <div class="catchoice" data-cat="shape"><span class="ico">⭐</span>Shape</div>
+        <div class="catchoice" data-cat="background"><span class="ico">🌅</span>Background</div>
+        <div class="catchoice" data-cat="pattern"><span class="ico">🔷</span>Pola</div>
+      </div>
+      <div class="row" style="margin-top:10px"><label>Campurkan semua kategori</label>
+        <label class="switch"><input type="checkbox" id="optMix"><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <h3>🌈 Palet Warna</h3>
+      <div class="palgrid" id="palGrid"></div>
+      <div class="row" style="margin-top:10px"><label>Warna custom 1</label><input type="color" id="c1" value="#f5b942"></div>
+      <div class="row"><label>Warna custom 2</label><input type="color" id="c2" value="#1e3a8a"></div>
+      <div class="row"><label>Latar custom</label><input type="color" id="cbg" value="#ffffff"></div>
+      <button class="btn small" id="btnShufflePal" style="width:100%">🎲 Acak Warna</button>
+    </div>
+
+    <div class="ctl">
+      <h3>⚙️ Generate</h3>
+      <div class="row"><label>Jumlah gambar</label><input type="number" id="optCount" value="8" min="1" max="24" style="width:70px"></div>
+      <div class="row"><label>Ukuran export</label>
+        <select id="optSize" style="width:110px"><option value="1024">1024 px</option><option value="2048" selected>2048 px</option></select>
+      </div>
+      <div class="row"><label>Format</label>
+        <select id="optFormat" style="width:110px"><option value="png">PNG</option><option value="jpg">JPG</option></select>
+      </div>
+      <div class="row"><label>Teks badge</label><input type="text" id="optBadgeText" value="PREMIUM" maxlength="14"></div>
+      <button class="btn blue" id="btnGenerate" style="width:100%">✨ Generate Sekarang</button>
+      <div class="progress" id="genProgress"><i></i></div>
+    </div>
+
+    <div class="ctl">
+      <h3>🤖 Mode Otomatis</h3>
+      <div class="switchrow"><span>Auto-download tiap gambar</span>
+        <label class="switch"><input type="checkbox" id="optAutoDl" checked><span class="slider"></span></label>
+      </div>
+      <div class="row"><label>Jeda antar unduhan</label>
+        <select id="optDelay" style="width:90px"><option value="600">0.6 dtk</option><option value="1200" selected>1.2 dtk</option><option value="2500">2.5 dtk</option></select>
+      </div>
+      <div class="switchrow"><span>Buat paket harian otomatis saat dibuka</span>
+        <label class="switch"><input type="checkbox" id="optAutoDaily"><span class="slider"></span></label>
+      </div>
+      <button class="btn" id="btnAutoPilot" style="width:100%">▶ Jalankan Auto-Pilot</button>
+      <p class="hint" style="margin-top:8px">Auto-Pilot: generate satu per satu lalu otomatis mengunduh. Pastikan browser diizinkan mengunduh banyak file (klik ikon 🔒/ⓘ di address bar → Site settings → Automatic downloads → Allow).</p>
+    </div>
+
+    <div class="ctl">
+      <h3>🏷️ Metadata Stok</h3>
+      <div class="row"><label>Awalan judul</label><input type="text" id="metaPrefix" value=""></div>
+      <label class="hint">Deskripsi</label>
+      <textarea id="metaDesc">Koleksi aset vektor generatif berkualitas tinggi, cocok untuk kebutuhan desain, branding, dan materi pemasaran.</textarea>
+      <label class="hint" style="margin-top:8px">Kata kunci tambahan (pisahkan koma)</label>
+      <textarea id="metaKw">design, creative, modern</textarea>
+      <button class="btn small" id="btnApplyMeta" style="width:100%;margin-top:8px">Terapkan ke semua gambar</button>
+    </div>
+  </aside>
+
+  <section class="stage">
+    <div class="infobar">
+      <div class="dot"></div>
+      <div><b id="packTitle">Belum ada paket</b><br><span id="packSub">Klik “Generate Sekarang” atau “Paket Harian” untuk mulai membuat aset.</span></div>
+      <div class="sp"><button class="btn small" id="btnClear">🧹 Bersihkan</button></div>
+    </div>
+    <div id="gallery">
+      <div class="empty"><div class="big">🖼️</div><b>Galeri masih kosong</b><br>Hasil generate akan muncul di sini — lengkap dengan judul, kata kunci, dan tombol unduh per gambar.</div>
+    </div>
+  </section>
+</main>
+
+<div class="modal" id="modalDetail"><div class="sheet">
+  <button class="btn small ghost close" data-close>✕ Tutup</button>
+  <h2>Detail Aset</h2><p class="sub" id="detailSub"></p>
+  <div class="detailgrid">
+    <div><canvas id="detailCanvas" width="800" height="800"></canvas></div>
+    <div>
+      <div class="kv"><b>Judul</b><input type="text" id="dTitle"></div>
+      <div class="kv"><b>Deskripsi</b><textarea id="dDesc"></textarea></div>
+      <div class="kv"><b>Kata kunci (maks 25 untuk Adobe Stock)</b><textarea id="dKw" style="min-height:90px"></textarea></div>
+      <div class="kv"><b>Kategori</b><div class="chips" id="dCats"></div></div>
+      <div class="row"><button class="btn primary" id="dDlPng">⬇ PNG</button><button class="btn" id="dDlJpg">⬇ JPG</button><button class="btn blue" id="dSave">💾 Simpan Metadata</button></div>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal" id="modalGuide"><div class="sheet">
+  <button class="btn small ghost close" data-close>✕ Tutup</button>
+  <h2>📤 Panduan Upload ke Adobe Stock</h2>
+  <p class="sub">Dari studio ini sampai asetmu tayang di Adobe Stock.</p>
+  <div class="steps">
+    <div class="step">Generate gambar di studio ini (kategori <code>badge</code>, <code>shape</code>, <code>background</code>, atau <code>pola</code>). Gunakan <b>Paket Harian</b> untuk koleksi baru setiap hari — seed tanggal membuat tiap hari selalu unik.</div>
+    <div class="step">Unduh hasilnya: tombol <b>PNG/JPG</b> per gambar (manual), <b>Jalankan Auto-Pilot</b> (otomatis satu per satu), atau <b>Unduh ZIP</b> (semua sekaligus).</div>
+    <div class="step">Klik <b>CSV Metadata</b> untuk mengunduh file metadata (<code>Filename, Title, Keywords, Category</code>) yang kompatibel dengan upload massal Adobe Stock.</div>
+    <div class="step">Buka <b>contributor.stock.adobe.com</b> → login → <b>Upload</b> → seret semua file PNG/JPG hasil generate.</div>
+    <div class="step">Di dashboard contributor, pilih semua file → gunakan fitur <b>import metadata via CSV</b> (atau tempel judul & kata kunci per file). Setiap gambar di studio ini sudah membawa judul + 25 kata kunci berbahasa Inggris.</div>
+    <div class="step">Pilih kategori yang sesuai (mis. <i>Graphic Resources</i> untuk badge/shape, <i>Backgrounds/Textures</i> untuk background), centang “illustration”, lalu <b>Submit for review</b>. Biasanya direview dalam 1–5 hari kerja.</div>
+  </div>
+  <p class="hint">💡 Tips: Adobe Stock menolak gambar dengan artefak kompresi berat — selalu export PNG 2048px untuk kualitas maksimal, dan hindari teks bermerek dagang pada badge.</p>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  StockGen Studio • aset 100% prosedural, dibuat di browser kamu — tanpa server, tanpa antre.<br>
+  Tiap “Paket Harian” memakai seed tanggal sehingga desain tiap hari selalu berbeda.
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+"use strict";
+/* ============ UTIL & RNG ============ */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hashSeed(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}return h>>>0}
+function pick(r,arr){return arr[Math.floor(r()*arr.length)]}
+function rrange(r,a,b){return a+r()*(b-a)}
+function rint(r,a,b){return Math.floor(rrange(r,a,b+1))}
+function chance(r,p){return r()<p}
+function shade(hex,amt){ // amt -100..100
+  const n=parseInt(hex.slice(1),16);let R=(n>>16)+amt,G=((n>>8)&255)+amt,B=(n&255)+amt;
+  R=Math.max(0,Math.min(255,R));G=Math.max(0,Math.min(255,G));B=Math.max(0,Math.min(255,B));
+  return "#"+((R<<16)|(G<<8)|B).toString(16).padStart(6,"0");
+}
+function hexA(hex,a){const n=parseInt(hex.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}
+function mkCanvas(s){const c=document.createElement("canvas");c.width=c.height=s;return c}
+function todayStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function prettyDate(){return new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})}
+const $=id=>document.getElementById(id);
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2600)}
+
+/* ============ PALET WARNA ============ */
+const PALETTES=[
+ {name:"Senja", bg:"#fff7ec", colors:["#ff6b35","#f5b942","#c13c37","#2b2d42"], en:["orange","gold","red","navy"]},
+ {name:"Samudra",bg:"#f0f7ff", colors:["#1e3a8a","#4f7cff","#38bdf8","#0f172a"], en:["navy","blue","sky","dark blue"]},
+ {name:"Hutan", bg:"#f3faf3", colors:["#166534","#4ade80","#a3e635","#78350f"], en:["green","lime","brown"]},
+ {name:"Sakura", bg:"#fff5f7", colors:["#ec4899","#f9a8d4","#8b5cf6","#1f2937"], en:["pink","purple","dark"]},
+ {name:"Emas",  bg:"#1a1a2e", colors:["#f5b942","#ffe08a","#b8860b","#ffffff"], en:["gold","yellow","white"]},
+ {name:"Mono",  bg:"#ffffff", colors:["#111111","#555555","#999999","#dddddd"], en:["black","gray","white"]},
+ {name:"Neon",  bg:"#0b0b12", colors:["#00f5d4","#ff2e88","# fee440".replace(" ",""),"#7b5cff"], en:["teal","pink","yellow","purple"]},
+ {name:"Gurun", bg:"#faf6ef", colors:["#c2703d","#e8b04b","#7c4a21","#2f5233"], en:["terracotta","sand","brown","green"]},
+];
+let activePal=0, useCustom=false;
+function curColors(){
+  if(useCustom) return {bg:$("cbg").value, colors:[$("c1").value,$("c2").value,shade($("c1").value,-40),shade($("c2").value,40)], en:["custom"]};
+  return PALETTES[activePal];
+}
+
+/* ============ PATH BENTUK ============ */
+function pathShield(x,cx,cy,w,h){
+  x.beginPath();x.moveTo(cx-w/2,cy-h/2);
+  x.lineTo(cx+w/2,cy-h/2);x.lineTo(cx+w/2,cy+h*0.08);
+  x.quadraticCurveTo(cx+w/2,cy+h*0.34,cx,cy+h/2);
+  x.quadraticCurveTo(cx-w/2,cy+h*0.34,cx-w/2,cy+h*0.08);x.closePath();
+}
+function pathHex(x,cx,cy,r){
+  x.beginPath();for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;const px=cx+r*Math.cos(a),py=cy+r*Math.sin(a);i?x.lineTo(px,py):x.moveTo(px,py)}x.closePath();
+}
+function pathDiamond(x,cx,cy,w,h){x.beginPath();x.moveTo(cx,cy-h/2);x.lineTo(cx+w/2,cy);x.lineTo(cx,cy+h/2);x.lineTo(cx-w/2,cy);x.closePath()}
+function pathBurst(x,cx,cy,r,spikes,rIn){
+  x.beginPath();for(let i=0;i<spikes*2;i++){const a=i*Math.PI/spikes-Math.PI/2;const rr=i%2?rIn:r;const px=cx+rr*Math.cos(a),py=cy+rr*Math.sin(a);i?x.lineTo(px,py):x.moveTo(px,py)}x.closePath();
+}
+function pathStar5(x,cx,cy,r,rIn){
+  x.beginPath();for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2;const rr=i%2?rIn:r;const px=cx+rr*Math.cos(a),py=cy+rr*Math.sin(a);i?x.lineTo(px,py):x.moveTo(px,py)}x.closePath();
+}
+function pathSparkle(x,cx,cy,r){ // bintang 4 titik melengkung
+  x.beginPath();x.moveTo(cx,cy-r);
+  x.quadraticCurveTo(cx,cy,cx+r,cy);x.quadraticCurveTo(cx,cy,cx,cy+r);
+  x.quadraticCurveTo(cx,cy,cx-r,cy);x.quadraticCurveTo(cx,cy,cx,cy-r);x.closePath();
+}
+function pathBlob(x,cx,cy,r,seedN){
+  const n=10,rr=mulberry32(seedN);
+  x.beginPath();
+  for(let i=0;i<=n;i++){const a=i/n*Math.PI*2;const rad=r*(0.72+rr()*0.5);
+    const px=cx+rad*Math.cos(a),py=cy+rad*Math.sin(a);
+    const a2=(i+0.5)/n*Math.PI*2;const rad2=r*(0.72+rr()*0.5);
+    const qx=cx+rad2*Math.cos(a2)*1.15,qy=cy+rad2*Math.sin(a2)*1.15;
+    i?x.quadraticCurveTo(qx,qy,px,py):x.moveTo(px,py);}
+  x.closePath();
+}
+function pathScallop(x,cx,cy,r,lobes){
+  x.beginPath();
+  for(let i=0;i<=lobes*8;i++){const a=i/(lobes*8)*Math.PI*2;
+    const rad=r+Math.sin(a*lobes)*r*0.07;
+    const px=cx+rad*Math.cos(a),py=cy+rad*Math.sin(a);i?x.lineTo(px,py):x.moveTo(px,py);}
+  x.closePath();
+}
+function pathArch(x,cx,cy,w,h){
+  x.beginPath();x.moveTo(cx-w/2,cy+h/2);x.lineTo(cx-w/2,cy-h*0.1);
+  x.arc(cx,cy-h*0.1,w/2,Math.PI,0);x.lineTo(cx+w/2,cy+h/2);x.closePath();
+}
+function pathRibbon(x,cx,cy,w,h,tail){
+  x.beginPath();
+  x.moveTo(cx-w/2+tail,cy-h/2);x.lineTo(cx+w/2-tail,cy-h/2);x.lineTo(cx+w/2-tail,cy+h/2);
+  x.lineTo(cx+w/2,cy+h/2);x.lineTo(cx+w/2-tail*0.4,cy+h/2+h*0.28);x.lineTo(cx+w/2-tail,cy+h/2+h*0.55);
+  x.lineTo(cx-w/2+tail,cy+h/2+h*0.55);x.lineTo(cx-w/2+tail*0.4,cy+h/2+h*0.28);x.lineTo(cx-w/2,cy+h/2);
+  x.closePath();
+}
+function drawInnerStroke(x,pathFn,color,lw){
+  x.save();x.strokeStyle=color;x.lineWidth=lw;x.stroke();x.restore();
+}
+function drawStarsRow(x,cx,cy,n,rad,color){
+  x.save();x.fillStyle=color;
+  for(let i=0;i<n;i++){const a=-Math.PI/2+(i/(n-1)-0.5)*1.1;pathStar5(x,cx+Math.cos(a)*rad,cy+Math.sin(a)*rad,rad*0.09,rad*0.04);x.fill()}
+  x.restore();
+}
+function fitText(x,text,cx,cy,maxW,baseSize,color,font){
+  x.save();x.fillStyle=color;x.textAlign="center";x.textBaseline="middle";
+  let s=baseSize;x.font=`800 ${s}px ${font}`;
+  while(x.measureText(text).width>maxW&&s>8){s-=2;x.font=`800 ${s}px ${font}`}
+  x.fillText(text,cx,cy);x.restore();
+}
+
+/* ============ GENERATOR: BADGE ============ */
+const BADGE_TEXTS=["PREMIUM","BEST SELLER","ORIGINAL","EST. 2026","100% ASLI","NEW","TOP QUALITY","GARANSI"];
+function genBadge(r,size,cols){
+  const c=mkCanvas(size),x=c.getContext("2d"),S=size;
+  x.fillStyle=cols.bg;x.fillRect(0,0,S,S);
+  const cx=S/2,cy=S/2,main=cols.colors[0],acc=cols.colors[1]||"#ffffff",dark=cols.colors[3]||"#111111";
+  const kind=rint(r,0,6), sc=S/1000;
+  const drawInner=(fn,lwFrac)=>{x.save();x.lineWidth=S*lwFrac;x.strokeStyle="#ffffff";fn();x.stroke();x.restore()};
+  if(kind===0){ // perisai
+    pathShield(x,cx,cy,S*0.52,S*0.6);x.fillStyle=main;x.fill();
+    x.save();pathShield(x,cx,cy,S*0.44,S*0.51);x.lineWidth=S*0.012;x.strokeStyle="#fff";x.stroke();x.restore();
+    drawStarsRow(x,cx,cy-S*0.13,3,S*0.16,"#ffffff");
+    fitText(x,pick(r,BADGE_TEXTS),cx,cy+S*0.06,S*0.36,S*0.075,"#ffffff","Arial");
+    fitText(x,"★ ★ ★",cx,cy+S*0.17,S*0.3,S*0.05,"#ffffff","Arial");
+  }else if(kind===1){ // lingkaran segel
+    x.beginPath();x.arc(cx,cy,S*0.3,0,7);x.fillStyle=main;x.fill();
+    x.save();x.lineWidth=S*0.014;x.strokeStyle="#fff";x.beginPath();x.arc(cx,cy,S*0.26,0,7);x.stroke();x.restore();
+    pathBurst(x,cx,cy,S*0.3,24,S*0.285);x.fillStyle=hexA(main,0.35);x.fill();
+    fitText(x,pick(r,BADGE_TEXTS),cx,cy-S*0.02,S*0.4,S*0.07,"#ffffff","Arial");
+    fitText(x,"EST. 2026",cx,cy+S*0.1,S*0.3,S*0.045,"#ffffff","Arial");
+    pathStar5(x,cx,cy-S*0.16,S*0.045,S*0.02);x.fillStyle="#fff";x.fill();
+  }else if(kind===2){ // hexagon
+    pathHex(x,cx,cy,S*0.3);x.fillStyle=main;x.fill();
+    x.save();pathHex(x,cx,cy,S*0.25);x.lineWidth=S*0.012;x.strokeStyle="#fff";x.stroke();x.restore();
+    fitText(x,pick(r,BADGE_TEXTS),cx,cy,S*0.36,S*0.07,"#ffffff","Arial");
+    drawStarsRow(x,cx,cy+S*0.13,3,S*0.12,"#ffffff");
+  }else if(kind===3){ // pita ribbon
+    const rw=S*0.72,rh=S*0.2;
+    x.fillStyle=shade(main,-35);
+    x.fillRect(cx-rw/2-S*0.02,cy-rh/2+S*0.06,rw+S*0.04,rh);
+    pathRibbon(x,cx,cy,rw,rh,S*0.09);x.fillStyle=main;x.fill();
+    x.save();pathRibbon(x,cx,cy,rw*0.94,rh*0.72,S*0.085);x.lineWidth=S*0.008;x.strokeStyle="#fff";x.stroke();x.restore();
+    fitText(x,$("optBadgeText").value||pick(r,BADGE_TEXTS),cx,cy+S*0.01,rw*0.8,S*0.085,"#ffffff","Arial");
+    pathStar5(x,cx-rw/2-S*0.055,cy+S*0.02,S*0.05,S*0.022);x.fillStyle=acc;x.fill();
+    pathStar5(x,cx+rw/2+S*0.055,cy+S*0.02,S*0.05,S*0.022);x.fillStyle=acc;x.fill();
+  }else if(kind===4){ // diamond
+    pathDiamond(x,cx,cy,S*0.55,S*0.55);x.fillStyle=main;x.fill();
+    x.save();pathDiamond(x,cx,cy,S*0.46,S*0.46);x.lineWidth=S*0.012;x.strokeStyle="#fff";x.stroke();x.restore();
+    fitText(x,pick(r,BADGE_TEXTS),cx,cy,S*0.3,S*0.065,"#ffffff","Arial");
+  }else if(kind===5){ // arch badge
+    pathArch(x,cx,cy+S*0.03,S*0.5,S*0.58);x.fillStyle=main;x.fill();
+    x.save();pathArch(x,cx,cy+S*0.03,S*0.42,S*0.5);x.lineWidth=S*0.012;x.strokeStyle="#fff";x.stroke();x.restore();
+    fitText(x,pick(r,BADGE_TEXTS),cx,cy+S*0.1,S*0.32,S*0.065,"#ffffff","Arial");
+    drawStarsRow(x,cx,cy-S*0.05,3,S*0.12,"#ffffff");
+  }else{ // starburst seal
+    pathBurst(x,cx,cy,S*0.3,28,S*0.27);x.fillStyle=main;x.fill();
+    x.save();x.beginPath();x.arc(cx,cy,S*0.22,0,7);x.lineWidth=S*0.012;x.strokeStyle="#fff";x.stroke();x.restore();
+    fitText(x,"100%",cx,cy-S*0.03,S*0.28,S*0.09,"#ffffff","Arial");
+    fitText(x,pick(r,["ORIGINAL","PREMIUM","ASLI"]),cx,cy+S*0.07,S*0.28,S*0.05,"#ffffff","Arial");
+  }
+  // aksen sudut halus
+  x.save();x.globalAlpha=0.08;x.fillStyle=dark;
+  x.beginPath();x.arc(0,0,S*0.4,0,7);x.fill();x.beginPath();x.arc(S,S,S*0.4,0,7);x.fill();x.restore();
+  return c;
+}
+
+/* ============ GENERATOR: SHAPE ============ */
+function genShape(r,size,cols){
+  const c=mkCanvas(size),x=c.getContext("2d"),S=size;
+  const cx=S/2,cy=S/2,main=cols.colors[0],acc=cols.colors[1]||"#ffffff";
+  const kind=rint(r,0,7),grad=chance(r,0.45);
+  let fill=main;
+  if(grad){const g=x.createLinearGradient(0,0,S,S);g.addColorStop(0,main);g.addColorStop(1,cols.colors[2]||acc);fill=g}
+  x.fillStyle=fill;
+  const R=S*0.3;
+  if(kind===0){pathStar5(x,cx,cy,R,R*0.45);x.fill()}
+  else if(kind===1){pathSparkle(x,cx,cy,R*1.15);x.fill()}
+  else if(kind===2){pathBurst(x,cx,cy,R,16,R*0.82);x.fill()}
+  else if(kind===3){pathBlob(x,cx,cy,R,r,rint(r,1,99999));x.fill()}
+  else if(kind===4){pathScallop(x,cx,cy,R,14);x.fill();x.save();x.globalCompositeOperation="destination-out";x.beginPath();x.arc(cx,cy,R*0.45,0,7);x.fill();x.restore()}
+  else if(kind===5){pathArch(x,cx,cy+S*0.02,S*0.44,S*0.56);x.fill()}
+  else if(kind===6){ // donat
+    x.beginPath();x.arc(cx,cy,R,0,7);x.fill();
+    x.save();x.globalCompositeOperation="destination-out";x.beginPath();x.arc(cx,cy,R*0.55,0,7);x.fill();x.restore();
+  }else{ // bulan sabit
+    x.beginPath();x.arc(cx,cy,R,0,7);x.fill();
+    x.save();x.globalCompositeOperation="destination-out";x.beginPath();x.arc(cx+R*0.45,cy-R*0.2,R*0.85,0,7);x.fill();x.restore();
+  }
+  if(chance(r,0.5)){ // highlight kilau
+    x.save();x.globalAlpha=0.22;x.fillStyle="#fff";
+    x.beginPath();x.ellipse(cx-R*0.25,cy-R*0.35,R*0.28,R*0.14,-0.6,0,7);x.fill();x.restore();
+  }
+  return c;
+}
+
+/* ============ GENERATOR: BACKGROUND ============ */
+function genBackground(r,size,cols){
+  const c=mkCanvas(size),x=c.getContext("2d"),S=size;
+  const kind=rint(r,0,4),C=cols.colors;
+  x.fillStyle=cols.bg;x.fillRect(0,0,S,S);
+  if(kind===0){ // blob gradien mesh
+    for(let i=0;i<5;i++){
+      const bx=rrange(r,0,S),by=rrange(r,0,S),br=rrange(r,S*0.25,S*0.55);
+      const g=x.createRadialGradient(bx,by,0,bx,by,br);
+      const col=C[i%C.length];g.addColorStop(0,hexA(col,0.85));g.addColorStop(1,hexA(col,0));
+      x.fillStyle=g;x.beginPath();x.arc(bx,by,br,0,7);x.fill();
+    }
+  }else if(kind===1){ // gelombang berlapis
+    const n=rint(r,4,6);
+    for(let i=0;i<n;i++){
+      x.fillStyle=hexA(C[i%C.length],0.75);
+      x.beginPath();x.moveTo(0,S);
+      const baseY=S*(0.25+0.65*i/n),amp=rrange(r,S*0.03,S*0.09),ph=r()*7;
+      for(let px=0;px<=S;px+=S/60){x.lineTo(px,baseY+Math.sin(px/S*6.28*rrange(r,1,2.5)+ph)*amp)}
+      x.lineTo(S,S);x.closePath();x.fill();
+    }
+  }else if(kind===2){ // sapuan kuas
+    x.lineCap="round";
+    for(let i=0;i<rint(r,7,12);i++){
+      x.strokeStyle=hexA(C[i%C.length],rrange(r,0.35,0.8));
+      x.lineWidth=rrange(r,S*0.03,S*0.09);
+      const y0=rrange(r,0,S);x.beginPath();x.moveTo(-S*0.05,y0);
+      x.bezierCurveTo(S*0.3,y0+rrange(r,-S*0.2,S*0.2),S*0.7,y0+rrange(r,-S*0.2,S*0.2),S*1.05,rrange(r,0,S));
+      x.stroke();
+    }
+  }else if(kind===3){ // duotone diagonal
+    x.fillStyle=C[0];x.fillRect(0,0,S,S);
+    x.fillStyle=C[1]||C[0];x.beginPath();x.moveTo(0,S);x.lineTo(S,S*rrange(r,0.1,0.5));x.lineTo(S,S);x.closePath();x.fill();
+    x.fillStyle=hexA("#ffffff",0.14);
+    for(let i=0;i<3;i++){const w=rrange(r,S*0.02,S*0.06);x.save();x.translate(S/2,S/2);x.rotate(-0.5);x.fillRect(-S,w*i*2.4,S*2,w);x.restore()}
+    const bx=rrange(r,S*0.2,S*0.8),by=rrange(r,S*0.2,S*0.6);
+    const g=x.createRadialGradient(bx,by,0,bx,by,S*0.4);g.addColorStop(0,hexA(C[2]||"#ffffff",0.9));g.addColorStop(1,hexA(C[2]||"#ffffff",0));
+    x.fillStyle=g;x.beginPath();x.arc(bx,by,S*0.4,0,7);x.fill();
+  }else{ // komposisi memphis
+    drawMemphisField(x,r,S,C,cols.bg,0.9);
+  }
+  // vignette lembut
+  const v=x.createRadialGradient(S/2,S/2,S*0.35,S/2,S/2,S*0.75);
+  v.addColorStop(0,"rgba(0,0,0,0)");v.addColorStop(1,"rgba(0,0,0,0.12)");
+  x.fillStyle=v;x.fillRect(0,0,S,S);
+  return c;
+}
+
+/* ============ MEMPHIS FIELD & POLA ============ */
+function drawMemphisGlyph(x,r,px,py,s,col,type){
+  x.save();x.translate(px,py);x.fillStyle=col;x.strokeStyle=col;x.lineWidth=s*0.12;x.lineCap="round";
+  if(type===0){x.beginPath();x.arc(0,0,s*0.5,0,7);x.fill()}
+  else if(type===1){x.beginPath();x.arc(0,0,s*0.5,0,7);x.stroke()}
+  else if(type===2){x.beginPath();x.moveTo(0,-s*0.5);x.lineTo(s*0.5,s*0.4);x.lineTo(-s*0.5,s*0.4);x.closePath();x.fill()}
+  else if(type===3){x.fillRect(-s*0.4,-s*0.4,s*0.8,s*0.8)}
+  else if(type===4){x.beginPath();x.moveTo(-s*0.5,0);for(let i=0;i<4;i++){x.lineTo(-s*0.5+(i+0.5)*s*0.25,i%2?-s*0.25:s*0.25)}x.lineTo(s*0.5,0);x.stroke()}
+  else if(type===5){x.beginPath();x.moveTo(-s*0.5,0);x.quadraticCurveTo(-s*0.25,-s*0.5,0,0);x.quadraticCurveTo(s*0.25,s*0.5,s*0.5,0);x.stroke()}
+  else if(type===6){x.beginPath();x.moveTo(-s*0.4,0);x.lineTo(s*0.4,0);x.moveTo(0,-s*0.4);x.lineTo(0,s*0.4);x.stroke()}
+  else if(type===7){for(let i=-1;i<=1;i++){x.beginPath();x.arc(i*s*0.4,0,s*0.12,0,7);x.fill()}}
+  else if(type===8){x.beginPath();x.arc(0,0,s*0.5,Math.PI,0);x.fill()}
+  else{pathSparkle(x,0,0,s*0.55);x.fill()}
+  x.restore();
+}
+function drawMemphisField(x,r,S,C,bg,cover){
+  const n=rint(r,14,26);
+  for(let i=0;i<n;i++){
+    const s=rrange(r,S*0.03,S*0.1);
+    drawMemphisGlyph(x,r,rrange(r,0,S),rrange(r,0,S),s,pick(r,C),rint(r,0,9));
+  }
+  if(chance(r,0.6)){ // satu bentuk hero besar
+    x.save();x.globalAlpha=0.9;
+    const s=rrange(r,S*0.18,S*0.3);
+    drawMemphisGlyph(x,r,rrange(r,S*0.2,S*0.8),rrange(r,S*0.2,S*0.8),s,pick(r,C),rint(r,0,9));
+    x.restore();
+  }
+}
+function genPattern(r,size,cols){
+  const c=mkCanvas(size),x=c.getContext("2d"),S=size,C=cols.colors;
+  x.fillStyle=cols.bg;x.fillRect(0,0,S,S);
+  const style=rint(r,0,2);
+  if(style===0){ // grid rapi
+    const n=rint(r,4,6),cell=S/n;
+    for(let gy=0;gy<n;gy++)for(let gx=0;gx<n;gx++){
+      const jx=(gx+0.5)*cell+rrange(r,-cell*0.1,cell*0.1),jy=(gy+0.5)*cell+rrange(r,-cell*0.1,cell*0.1);
+      drawMemphisGlyph(x,r,jx,jy,cell*rrange(r,0.35,0.6),C[(gx+gy)%C.length],rint(r,0,9));
+    }
+  }else if(style===1){ // garis diagonal berulang
+    x.save();x.translate(S/2,S/2);x.rotate(-Math.PI/5);x.translate(-S,-S);
+    const gap=rrange(r,S*0.06,S*0.12);
+    for(let yy=0;yy<S*2.5;yy+=gap){
+      x.fillStyle=C[Math.floor(yy/gap)%C.length];
+      x.fillRect(0,yy,S*2.5,gap*rrange(r,0.25,0.6));
+    }
+    x.restore();
+    drawMemphisField(x,r,S,C,cols.bg,0.4);
+  }else{ // titik halftone
+    const gap=rrange(r,S*0.05,S*0.09);
+    for(let yy=gap/2;yy<S;yy+=gap)for(let xx=gap/2;xx<S;xx+=gap){
+      const d=Math.hypot(xx-S/2,yy-S/2)/(S/2);
+      x.fillStyle=C[rint(r,0,C.length-1)];
+      x.beginPath();x.arc(xx,yy,gap*0.28*(1.1-d*0.7),0,7);x.fill();
+    }
+  }
+  return c;
+}
+
+/* ============ METADATA ============ */
+const META={
+ badge:{label:"Badge",en:"Badge",cats:["badges","vector","illustration"],
+  kw:["badge","label","emblem","vintage","premium","quality","stamp","seal","retro","vector","illustration","design","icon","symbol","decoration","award","ribbon","shield","sticker","logo element","marketing","branding","isolated","graphic","template"],
+  titles:["Vintage {C} Badge Emblem Vector Illustration","Premium {C} Label Seal Design","Retro {C} Stamp Badge Graphic"]},
+ shape:{label:"Shape",en:"Shape",cats:["abstract","vector","illustration"],
+  kw:["shape","abstract","geometric","vector","illustration","design","element","modern","minimal","graphic","icon","symbol","decoration","background element","flat","creative","art","isolated","decorative","form","style","trendy","simple","clipart","object"],
+  titles:["Abstract {C} Geometric Shape Vector","Modern {C} Decorative Shape Element","Minimal {C} Abstract Form Illustration"]},
+ background:{label:"Background",en:"Background",cats:["abstract","backgrounds","illustration"],
+  kw:["background","abstract","texture","wallpaper","design","modern","colorful","gradient","art","pattern","backdrop","creative","banner","presentation","web","geometric","style","vibrant","decoration","digital","template","cover","poster","trendy","smooth"],
+  titles:["Abstract {C} Gradient Background Texture","Modern {C} Artistic Background Design","Colorful {C} Abstract Wallpaper Backdrop"]},
+ pattern:{label:"Pola",en:"Pattern",cats:["abstract","backgrounds","illustration"],
+  kw:["pattern","seamless","abstract","geometric","vector","background","texture","design","modern","repeat","wallpaper","decorative","graphic","ornament","print","textile","memphis","shapes","colorful","trendy","fabric","wrapping","art","backdrop","tile"],
+  titles:["Seamless {C} Geometric Pattern Design","Modern {C} Memphis Pattern Background","Abstract {C} Repeating Pattern Texture"]},
+};
+const COLOR_EN={Senja:"Warm",Samudra:"Blue",Hutan:"Green",Sakura:"Pink",Emas:"Gold",Mono:"Monochrome",Neon:"Neon",Gurun:"Earth"};
+function buildMeta(r,cat){
+  const m=META[cat],cols=curColors();
+  const palName=useCustom?"Custom":PALETTES[activePal].name;
+  const cword=COLOR_EN[palName]||"Colorful";
+  const title=pick(r,m.titles).replace("{C}",cword);
+  const extra=$("metaKw").value.split(",").map(s=>s.trim()).filter(Boolean);
+  const kw=[...m.kw];
+  extra.forEach(k=>{if(k&&!kw.includes(k.toLowerCase()))kw.push(k.toLowerCase())});
+  return {title:( $("metaPrefix").value.trim()?$("metaPrefix").value.trim()+" ":"")+title,
+    keywords:kw.slice(0,25), description:$("metaDesc").value.trim(), cats:m.cats, en:m.en};
+}
+function genOne(r,cat,size){
+  const cols=curColors();
+  const canvas=cat==="badge"?genBadge(r,size,cols):cat==="shape"?genShape(r,size,cols):cat==="background"?genBackground(r,size,cols):genPattern(r,size,cols);
+  const meta=buildMeta(r,cat);
+  const d=todayStr().replace(/-/g,"");
+  return {id:"sg"+Math.floor(r()*1e9).toString(36),cat,canvas,meta,seedTag:d,
+    fname:`stockgen-${cat}-${d}-${String(itemSeq++).padStart(2,"0")}`};
+}
+
+/* ============ STATE & GALERI ============ */
+let items=[], itemSeq=1, detailIdx=-1, autoRunning=false;
+function renderGallery(){
+  const g=$("gallery");
+  if(!items.length){g.innerHTML=`<div class="empty"><div class="big">🖼️</div><b>Galeri masih kosong</b><br>Hasil generate akan muncul di sini — lengkap dengan judul, kata kunci, dan tombol unduh per gambar.</div>`;return}
+  g.innerHTML="";
+  items.forEach((it,i)=>{
+    const card=document.createElement("div");card.className="card"+(it.downloaded?" done":"");
+    const th=document.createElement("canvas");th.className="thumb";th.width=th.height=440;
+    th.getContext("2d").drawImage(it.canvas,0,0,440,440);
+    th.title="Klik untuk detail & edit metadata";th.onclick=()=>openDetail(i);
+    const body=document.createElement("div");body.className="body";
+    const chips=it.meta.keywords.slice(0,4).map(k=>`<span class="chip">${k}</span>`).join("")+
+      `<span class="chip hot">${it.meta.en}</span><span class="chip">+${it.meta.keywords.length-4} kw</span>`;
+    body.innerHTML=`<div class="ttl">${esc(it.meta.title)}</div><div class="chips">${chips}</div>
+      <div class="actions"><button class="btn small primary">⬇ PNG</button><button class="btn small">⬇ JPG</button><span class="dlmark">✓ terunduh</span></div>`;
+    const[bp,bj]=body.querySelectorAll("button");
+    bp.onclick=e=>{e.stopPropagation();downloadItem(i,"png")};
+    bj.onclick=e=>{e.stopPropagation();downloadItem(i,"jpg")};
+    card.appendChild(th);card.appendChild(body);g.appendChild(card);
+  });
+}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function updatePackBar(label,sub){$("packTitle").textContent=label;$("packSub").textContent=sub}
+function progress(p){const el=$("genProgress");el.style.display=p==null?"none":"block";if(p!=null)el.firstElementChild.style.width=(p*100)+"%"}
+
+/* ============ GENERATE ============ */
+function activeCats(){
+  if($("optMix").checked)return["badge","shape","background","pattern"];
+  const a=document.querySelector("#catGrid .catchoice.active");
+  return[a?a.dataset.cat:"badge"];
+}
+async function generateBatch(seedStr,label,onEach){
+  const count=Math.max(1,Math.min(24,parseInt($("optCount").value)||8));
+  const size=parseInt($("optSize").value)||2048;
+  const r=mulberry32(hashSeed(seedStr));
+  const cats=activeCats();
+  progress(0);
+  for(let i=0;i<count;i++){
+    const cat=cats[Math.floor(r()*cats.length)];
+    const it=genOne(r,cat,size);
+    items.push(it);
+    if(onEach)await onEach(it,items.length-1);
+    progress((i+1)/count);
+    await new Promise(res=>setTimeout(res,30)); // beri napas ke UI
+  }
+  progress(null);renderGallery();
+  updatePackBar(label,`${count} gambar • ${cats.join(", ")} • ${prettyDate()} • ${size}px`);
+  toast(`✅ ${count} gambar berhasil dibuat`);
+}
+$("btnGenerate").onclick=()=>{if(autoRunning)return;generateBatch("manual-"+Date.now()+"-"+Math.random(),"Paket Manual")};
+$("btnDaily").onclick=()=>{if(autoRunning)return;generateBatch("daily-"+todayStr(),"Paket Harian — "+prettyDate())};
+$("btnClear").onclick=()=>{items=[];itemSeq=1;renderGallery();updatePackBar("Belum ada paket","Klik “Generate Sekarang” atau “Paket Harian” untuk mulai membuat aset.")};
+
+/* ============ DOWNLOAD ============ */
+function canvasToBlob(canvas,fmt){
+  return new Promise(res=>{
+    if(fmt==="jpg"){const t=mkCanvas(canvas.width),tx=t.getContext("2d");tx.fillStyle="#ffffff";tx.fillRect(0,0,t.width,t.height);tx.drawImage(canvas,0,0);t.toBlob(res,"image/jpeg",0.92)}
+    else canvas.toBlob(res,"image/png");
+  });
+}
+async function downloadItem(i,fmt){
+  const it=items[i];if(!it)return;
+  fmt=fmt||$("optFormat").value;
+  const blob=await canvasToBlob(it.canvas,fmt);
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download=it.fname+"."+(fmt==="jpg"?"jpg":"png");
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);
+  it.downloaded=true;renderGallery();
+}
+$("btnZip").onclick=async()=>{
+  if(!items.length)return toast("Galeri masih kosong — generate dulu ya");
+  if(typeof JSZip==="undefined")return toast("⚠️ Library ZIP belum termuat (butuh internet sekali). Unduh manual per gambar dulu.");
+  toast("🗜️ Menyiapkan ZIP...");
+  const zip=new JSZip(),fmt=$("optFormat").value,ext=fmt==="jpg"?"jpg":"png";
+  for(const it of items){zip.file(it.fname+"."+ext,await canvasToBlob(it.canvas,fmt))}
+  const blob=await zip.generateAsync({type:"blob"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download=`stockgen-paket-${todayStr()}.zip`;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);
+  items.forEach(it=>it.downloaded=true);renderGallery();toast("✅ ZIP terunduh");
+};
+$("btnCsv").onclick=()=>{
+  if(!items.length)return toast("Galeri masih kosong — generate dulu ya");
+  const rows=[["Filename","Title","Keywords","Category"]];
+  const fmt=$("optFormat").value,ext=fmt==="jpg"?"jpg":"png";
+  items.forEach(it=>{rows.push([it.fname+"."+ext,it.meta.title,it.meta.keywords.join(", "),it.meta.en])});
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"}));
+  a.download=`stockgen-metadata-${todayStr()}.csv`;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);
+  toast("✅ CSV metadata terunduh — siap untuk import massal Adobe Stock");
+};
+
+/* ============ AUTO-PILOT ============ */
+$("btnAutoPilot").onclick=async()=>{
+  if(autoRunning){autoRunning=false;$("btnAutoPilot").textContent="▶ Jalankan Auto-Pilot";return}
+  if(!items.length){toast("Generate dulu sebelum Auto-Pilot — klik Generate Sekarang");return}
+  autoRunning=true;$("btnAutoPilot").textContent="⏸ Hentikan Auto-Pilot";
+  const autoDl=$("optAutoDl").checked,delay=parseInt($("optDelay").value)||1200,fmt=$("optFormat").value;
+  let n=0;
+  for(let i=0;i<items.length&&autoRunning;i++){
+    if(!items[i].downloaded&&autoDl){await downloadItem(i,fmt);n++}
+    else if(!autoDl){items[i].downloaded=true}
+    toast(`⏳ Auto-Pilot ${i+1}/${items.length}...`);
+    await new Promise(res=>setTimeout(res,delay));
+  }
+  renderGallery();autoRunning=false;$("btnAutoPilot").textContent="▶ Jalankan Auto-Pilot";
+  toast(autoDl?`✅ Auto-Pilot selesai — ${n} gambar terunduh otomatis`:"✅ Auto-Pilot selesai");
+};
+
+/* ============ DETAIL & METADATA ============ */
+function openDetail(i){
+  detailIdx=i;const it=items[i];
+  const dc=$("detailCanvas");dc.width=dc.height=Math.min(800,it.canvas.width);
+  dc.getContext("2d").drawImage(it.canvas,0,0,dc.width,dc.height);
+  $("detailSub").textContent=`${it.fname} • ${it.meta.en} • ${it.canvas.width}px`;
+  $("dTitle").value=it.meta.title;$("dDesc").value=it.meta.description;$("dKw").value=it.meta.keywords.join(", ");
+  $("dCats").innerHTML=it.meta.cats.map(c=>`<span class="chip hot">${c}</span>`).join("");
+  $("modalDetail").classList.add("open");
+}
+$("dDlPng").onclick=()=>downloadItem(detailIdx,"png");
+$("dDlJpg").onclick=()=>downloadItem(detailIdx,"jpg");
+$("dSave").onclick=()=>{
+  const it=items[detailIdx];if(!it)return;
+  it.meta.title=$("dTitle").value.trim()||it.meta.title;
+  it.meta.description=$("dDesc").value.trim();
+  it.meta.keywords=$("dKw").value.split(",").map(s=>s.trim().toLowerCase()).filter(Boolean).slice(0,25);
+  renderGallery();toast("💾 Metadata tersimpan");
+};
+$("btnApplyMeta").onclick=()=>{
+  if(!items.length)return toast("Galeri masih kosong");
+  const p=$("metaPrefix").value.trim(),d=$("metaDesc").value.trim();
+  const extra=$("metaKw").value.split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);
+  items.forEach(it=>{
+    if(p&&!it.meta.title.startsWith(p))it.meta.title=p+" "+it.meta.title;
+    if(d)it.meta.description=d;
+    extra.forEach(k=>{if(!it.meta.keywords.includes(k)&&it.meta.keywords.length<25)it.meta.keywords.push(k)});
+  });
+  renderGallery();toast("🏷️ Metadata diterapkan ke semua gambar");
+};
+
+/* ============ PALET UI ============ */
+function renderPalettes(){
+  const g=$("palGrid");g.innerHTML="";
+  PALETTES.forEach((p,i)=>{
+    const d=document.createElement("div");d.className="pal"+(i===activePal&&!useCustom?" active":"");
+    d.innerHTML=`<div class="sw">${p.colors.map(c=>`<span style="background:${c}"></span>`).join("")}</div><small>${p.name}</small>`;
+    d.onclick=()=>{activePal=i;useCustom=false;renderPalettes()};
+    g.appendChild(d);
+  });
+  const dc=document.createElement("div");dc.className="pal"+(useCustom?" active":"");
+  dc.innerHTML=`<div class="sw"><span style="background:${$("cbg").value}"></span><span style="background:${$("c1").value}"></span><span style="background:${$("c2").value}"></span></div><small>Custom</small>`;
+  dc.onclick=()=>{useCustom=true;renderPalettes();toast("🎨 Mode warna custom aktif")};
+  g.appendChild(dc);
+}
+["c1","c2","cbg"].forEach(id=>$(id).addEventListener("input",()=>{useCustom=true;renderPalettes()}));
+$("btnShufflePal").onclick=()=>{
+  const r=Math.random;
+  const base=`#${Math.floor(r()*16777215).toString(16).padStart(6,"0")}`;
+  const base2=`#${Math.floor(r()*16777215).toString(16).padStart(6,"0")}`;
+  $("c1").value=base;$("c2").value=base2;
+  $("cbg").value=Math.random()<0.5?"#ffffff":"#111122";
+  useCustom=true;renderPalettes();toast("🎲 Warna diacak");
+};
+document.querySelectorAll("#catGrid .catchoice").forEach(el=>{
+  el.onclick=()=>{document.querySelectorAll("#catGrid .catchoice").forEach(e=>e.classList.remove("active"));el.classList.add("active")};
+});
+
+/* ============ MODAL & INIT ============ */
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>b.closest(".modal").classList.remove("open"));
+document.querySelectorAll(".modal").forEach(m=>m.onclick=e=>{if(e.target===m)m.classList.remove("open")});
+$("btnGuide").onclick=()=>$("modalGuide").classList.add("open");
+renderPalettes();
+if(localStorage.getItem("sg_autoDaily")==="1")$("optAutoDaily").checked=true;
+$("optAutoDaily").onchange=e=>localStorage.setItem("sg_autoDaily",e.target.checked?"1":"0");
+(function(){
+  const last=localStorage.getItem("sg_lastDaily"),t=todayStr();
+  if($("optAutoDaily").checked&&last!==t){
+    localStorage.setItem("sg_lastDaily",t);
+    generateBatch("daily-"+t,"Paket Harian — "+prettyDate());
+  }
+})();
+</script>
+</body>
+</html>
