@@ -134,6 +134,10 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:26px 12px 40p
       <div class="row"><label>Warna custom 2</label><input type="color" id="c2" value="#1e3a8a"></div>
       <div class="row"><label>Latar custom</label><input type="color" id="cbg" value="#ffffff"></div>
       <button class="btn small" id="btnShufflePal" style="width:100%">🎲 Acak Warna</button>
+      <div class="row" style="margin-top:10px"><label>Palet acak per gambar</label>
+        <label class="switch"><input type="checkbox" id="optRandPal" checked><span class="slider"></span></label>
+      </div>
+      <p class="hint">Ganti palet/warna kapan saja — semua gambar yang sudah di-generate ikut berubah otomatis.</p>
     </div>
 
     <div class="ctl">
@@ -143,7 +147,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:26px 12px 40p
         <select id="optSize" style="width:110px"><option value="1024">1024 px</option><option value="2048" selected>2048 px</option></select>
       </div>
       <div class="row"><label>Format</label>
-        <select id="optFormat" style="width:110px"><option value="png">PNG</option><option value="jpg">JPG</option></select>
+        <select id="optFormat" style="width:110px"><option value="png">PNG</option><option value="jpg" selected>JPG</option></select>
       </div>
       <div class="row"><label>Teks badge</label><input type="text" id="optBadgeText" value="PREMIUM" maxlength="14"></div>
       <button class="btn blue" id="btnGenerate" style="width:100%">✨ Generate Sekarang</button>
@@ -209,20 +213,20 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:26px 12px 40p
   <p class="sub">Dari studio ini sampai asetmu tayang di Adobe Stock.</p>
   <div class="steps">
     <div class="step">Generate gambar di studio ini — 8 kategori: <code>badge</code>, <code>shape</code>, <code>background</code>, <code>pola</code>, <code>ikon</code>, <code>bingkai</code>, <code>ilustrasi flat</code>, <code>divider</code>. Gunakan <b>Paket Harian</b> untuk 70 gambar baru setiap hari — seed tanggal membuat tiap hari selalu unik.</div>
-    <div class="step">Unduh hasilnya: tombol <b>PNG/JPG</b> per gambar (manual), <b>Jalankan Auto-Pilot</b> (otomatis satu per satu), atau <b>Unduh ZIP</b> (semua sekaligus).</div>
-    <div class="step">Klik <b>CSV Metadata</b> untuk mengunduh file metadata (<code>Filename, Title, Keywords, Category</code>) yang kompatibel dengan upload massal Adobe Stock.</div>
-    <div class="step">Buka <b>contributor.stock.adobe.com</b> → login → <b>Upload</b> → seret semua file PNG/JPG hasil generate.</div>
-    <div class="step">Di dashboard contributor, pilih semua file → gunakan fitur <b>import metadata via CSV</b> (atau tempel judul & kata kunci per file). Setiap gambar di studio ini sudah membawa judul + 25 kata kunci berbahasa Inggris.</div>
-    <div class="step">Pilih kategori yang sesuai (mis. <i>Graphic Resources</i> untuk badge/shape, <i>Backgrounds/Textures</i> untuk background), centang “illustration”, lalu <b>Submit for review</b>. Biasanya direview dalam 1–5 hari kerja.</div>
+    <div class="step">Pastikan pengaturan: ukuran <b>2048 px</b> (syarat minimum Adobe Stock: 4 megapiksel) dan format <b>JPG</b> (Adobe hanya menerima JPEG untuk gambar raster, bukan PNG).</div>
+    <div class="step">Unduh: tombol <b>PNG/JPG</b> per gambar (manual), <b>Jalankan Auto-Pilot</b> (otomatis satu per satu), atau <b>Unduh ZIP</b> (semua sekaligus). Nama file otomatis dibuat ≤30 karakter sesuai syarat Adobe.</div>
+    <div class="step">Klik <b>CSV Metadata</b> untuk mengunduh file metadata (<code>Filename, Title, Keywords, Category</code>). Judul otomatis dibatasi 70 karakter tanpa koma; kolom Category diisi <b>8</b> (= Graphic Resources, kategori yang tepat untuk semua aset studio ini).</div>
+    <div class="step">Buka <b>contributor.stock.adobe.com</b> → login → <b>Uploaded Files → New</b> → upload semua file JPG, lalu klik <b>Upload CSV</b> dan pilih file CSV tadi. Judul, kata kunci (25 per gambar), dan kategori langsung terisi.</div>
+    <div class="step">Set tipe file <b>illustration</b>, lalu <b>Submit for review</b> — biasanya direview dalam 1–5 hari kerja. <b>Jangan</b> centang “Created Using Generative AI Tools”: gambar studio ini dibuat prosedural/deterministik (bukan AI generatif).</div>
   </div>
-  <p class="hint">💡 Tips: Adobe Stock menolak gambar dengan artefak kompresi berat — selalu export PNG 2048px untuk kualitas maksimal, dan hindari teks bermerek dagang pada badge.</p>
+  <p class="hint">💡 Tips: unduh ZIP + CSV dalam format yang sama (JPG) agar nama file di CSV cocok dengan file yang diupload. Adobe Stock menolak gambar dengan artefak kompresi berat — export JPG 2048px kualitas 92 sudah cukup tajam, dan hindari teks bermerek dagang pada badge.</p>
 </div></div>
 
 <div class="toast" id="toast"></div>
 
 <footer>
-  StockGen Studio • aset 100% prosedural, dibuat di browser kamu — tanpa server, tanpa antre.<br>
-  Tiap “Paket Harian” memakai seed tanggal sehingga desain tiap hari selalu berbeda.
+  StockGen Studio • 8 kategori, aset 100% prosedural dibuat di browser kamu — tanpa server, tanpa antre.<br>
+  Paket Harian 70 gambar selalu acak tiap klik • ganti warna kapan saja, semua gambar ikut berubah otomatis.
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -246,6 +250,10 @@ function todayStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMo
 function prettyDate(){return new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})}
 const $=id=>document.getElementById(id);
 function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2600)}
+
+/* varian per kategori (untuk anti-pengulangan dalam 1 batch) */
+const KIND_COUNTS={badge:10,shape:12,background:8,pattern:6,frame:9,flat:10,divider:7};
+function shuffledBag(r,n){const a=[...Array(n).keys()];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
 /* ============ PALET WARNA ============ */
 const PALETTES=[
@@ -331,11 +339,11 @@ function fitText(x,text,cx,cy,maxW,baseSize,color,font){
 
 /* ============ GENERATOR: BADGE ============ */
 const BADGE_TEXTS=["PREMIUM","BEST SELLER","ORIGINAL","EST. 2026","100% ASLI","NEW","TOP QUALITY","GARANSI"];
-function genBadge(r,size,cols,badgeText){
+function genBadge(r,size,cols,badgeText,kind){
   const c=mkCanvas(size),x=c.getContext("2d"),S=size;
   x.fillStyle=cols.bg;x.fillRect(0,0,S,S);
   const cx=S/2,cy=S/2,main=cols.colors[0],acc=cols.colors[1]||"#ffffff",dark=cols.colors[3]||"#111111";
-  const kind=rint(r,0,6), sc=S/1000;
+  const sc=S/1000; if(kind===undefined)kind=rint(r,0,9);
   const drawInner=(fn,lwFrac)=>{x.save();x.lineWidth=S*lwFrac;x.strokeStyle="#ffffff";fn();x.stroke();x.restore()};
   if(kind===0){ // perisai
     pathShield(x,cx,cy,S*0.52,S*0.6);x.fillStyle=main;x.fill();
@@ -373,11 +381,45 @@ function genBadge(r,size,cols,badgeText){
     x.save();pathArch(x,cx,cy+S*0.03,S*0.42,S*0.5);x.lineWidth=S*0.012;x.strokeStyle="#fff";x.stroke();x.restore();
     fitText(x,pick(r,BADGE_TEXTS),cx,cy+S*0.1,S*0.32,S*0.065,"#ffffff","Arial");
     drawStarsRow(x,cx,cy-S*0.05,3,S*0.12,"#ffffff");
-  }else{ // starburst seal
+  }else if(kind===6){ // starburst seal
     pathBurst(x,cx,cy,S*0.3,28,S*0.27);x.fillStyle=main;x.fill();
     x.save();x.beginPath();x.arc(cx,cy,S*0.22,0,7);x.lineWidth=S*0.012;x.strokeStyle="#fff";x.stroke();x.restore();
     fitText(x,"100%",cx,cy-S*0.03,S*0.28,S*0.09,"#ffffff","Arial");
     fitText(x,pick(r,["ORIGINAL","PREMIUM","ASLI"]),cx,cy+S*0.07,S*0.28,S*0.05,"#ffffff","Arial");
+  }else if(kind===7){ // tiket
+    const w=S*0.62,h=S*0.34,nx=cx-w/2,ny=cy-h/2;
+    x.fillStyle=main;
+    x.beginPath();x.moveTo(nx,ny);x.lineTo(nx+w,ny);x.lineTo(nx+w,ny+h);x.lineTo(nx,ny+h);x.closePath();x.fill();
+    x.fillStyle=cols.bg;
+    x.beginPath();x.arc(nx,cy,S*0.045,0,7);x.fill();
+    x.beginPath();x.arc(nx+w,cy,S*0.045,0,7);x.fill();
+    x.save();x.setLineDash([S*0.02,S*0.018]);x.strokeStyle=cols.bg;x.lineWidth=S*0.01;
+    x.beginPath();x.moveTo(nx+w*0.72,ny+S*0.02);x.lineTo(nx+w*0.72,ny+h-S*0.02);x.stroke();x.restore();
+    fitText(x,"TIKET",nx+w*0.3,cy,w*0.52,S*0.075,"#ffffff","Arial");
+    fitText(x,"★",nx+w*0.86,cy,w*0.2,S*0.09,"#ffffff","Arial");
+  }else if(kind===8){ // lingkaran laurel
+    x.strokeStyle=main;x.lineWidth=S*0.014;
+    x.beginPath();x.arc(cx,cy,S*0.27,0,7);x.stroke();
+    x.save();x.lineWidth=S*0.009;
+    x.beginPath();x.arc(cx,cy,S*0.335,Math.PI*0.12,Math.PI*0.88);x.stroke();
+    x.beginPath();x.arc(cx,cy,S*0.335,Math.PI*1.12,Math.PI*1.88);x.stroke();x.restore();
+    x.fillStyle=acc;
+    for(let i=0;i<=8;i++){
+      [Math.PI*(0.15+0.7*i/8),Math.PI*(1.15+0.7*i/8)].forEach(a=>{
+        const lx=cx+Math.cos(a)*S*0.335,ly=cy+Math.sin(a)*S*0.335;
+        x.save();x.translate(lx,ly);x.rotate(a+Math.PI/2);
+        x.beginPath();x.ellipse(0,0,S*0.028,S*0.012,0,0,7);x.fill();x.restore();
+      });
+    }
+    fitText(x,pick(r,BADGE_TEXTS),cx,cy,S*0.36,S*0.062,main,"Arial");
+    fitText(x,"★ ★ ★",cx,cy+S*0.12,S*0.3,S*0.045,acc,"Arial");
+  }else{ // perisai minimalis outline
+    x.strokeStyle=main;x.lineWidth=S*0.02;
+    pathShield(x,cx,cy,S*0.5,S*0.58);x.stroke();
+    x.lineWidth=S*0.008;
+    pathShield(x,cx,cy,S*0.41,S*0.49);x.stroke();
+    fitText(x,pick(r,BADGE_TEXTS),cx,cy+S*0.02,S*0.32,S*0.068,main,"Arial");
+    pathStar5(x,cx,cy-S*0.15,S*0.042,S*0.018);x.fillStyle=acc;x.fill();
   }
   // aksen sudut halus
   x.save();x.globalAlpha=0.08;x.fillStyle=dark;
@@ -386,10 +428,11 @@ function genBadge(r,size,cols,badgeText){
 }
 
 /* ============ GENERATOR: SHAPE ============ */
-function genShape(r,size,cols){
+function genShape(r,size,cols,kind){
   const c=mkCanvas(size),x=c.getContext("2d"),S=size;
   const cx=S/2,cy=S/2,main=cols.colors[0],acc=cols.colors[1]||"#ffffff";
-  const kind=rint(r,0,7),grad=chance(r,0.45);
+  const grad=chance(r,0.45);
+  if(kind===undefined)kind=rint(r,0,11);
   let fill=main;
   if(grad){const g=x.createLinearGradient(0,0,S,S);g.addColorStop(0,main);g.addColorStop(1,cols.colors[2]||acc);fill=g}
   x.fillStyle=fill;
@@ -403,9 +446,32 @@ function genShape(r,size,cols){
   else if(kind===6){ // donat
     x.beginPath();x.arc(cx,cy,R,0,7);x.fill();
     x.save();x.globalCompositeOperation="destination-out";x.beginPath();x.arc(cx,cy,R*0.55,0,7);x.fill();x.restore();
-  }else{ // bulan sabit
+  }else if(kind===7){ // bulan sabit
     x.beginPath();x.arc(cx,cy,R,0,7);x.fill();
     x.save();x.globalCompositeOperation="destination-out";x.beginPath();x.arc(cx+R*0.45,cy-R*0.2,R*0.85,0,7);x.fill();x.restore();
+  }else if(kind===8){ // petir
+    x.beginPath();
+    x.moveTo(cx+S*0.09,cy-S*0.34);x.lineTo(cx-S*0.17,cy+S*0.05);x.lineTo(cx-S*0.02,cy+S*0.05);
+    x.lineTo(cx-S*0.09,cy+S*0.34);x.lineTo(cx+S*0.17,cy-S*0.05);x.lineTo(cx+S*0.02,cy-S*0.05);
+    x.closePath();x.fill();
+  }else if(kind===9){ // hati
+    x.beginPath();x.moveTo(cx,cy+S*0.26);
+    x.bezierCurveTo(cx-S*0.44,cy-S*0.02,cx-S*0.23,cy-S*0.3,cx,cy-S*0.1);
+    x.bezierCurveTo(cx+S*0.23,cy-S*0.3,cx+S*0.44,cy-S*0.02,cx,cy+S*0.26);
+    x.closePath();x.fill();
+  }else if(kind===10){ // tetes air
+    x.beginPath();x.moveTo(cx,cy-S*0.34);
+    x.bezierCurveTo(cx+S*0.24,cy-S*0.02,cx+S*0.27,cy+S*0.08,cx,cy+S*0.3);
+    x.bezierCurveTo(cx-S*0.27,cy+S*0.08,cx-S*0.24,cy-S*0.02,cx,cy-S*0.34);
+    x.closePath();x.fill();
+  }else{ // plus
+    const w=S*0.13;
+    x.beginPath();
+    x.moveTo(cx-w/2,cy-S*0.3);x.lineTo(cx+w/2,cy-S*0.3);x.lineTo(cx+w/2,cy-w/2);
+    x.lineTo(cx+S*0.3,cy-w/2);x.lineTo(cx+S*0.3,cy+w/2);x.lineTo(cx+w/2,cy+w/2);
+    x.lineTo(cx+w/2,cy+S*0.3);x.lineTo(cx-w/2,cy+S*0.3);x.lineTo(cx-w/2,cy+w/2);
+    x.lineTo(cx-S*0.3,cy+w/2);x.lineTo(cx-S*0.3,cy-w/2);x.lineTo(cx-w/2,cy-w/2);
+    x.closePath();x.fill();
   }
   if(chance(r,0.5)){ // highlight kilau
     x.save();x.globalAlpha=0.22;x.fillStyle="#fff";
@@ -415,9 +481,10 @@ function genShape(r,size,cols){
 }
 
 /* ============ GENERATOR: BACKGROUND ============ */
-function genBackground(r,size,cols){
+function genBackground(r,size,cols,kind){
   const c=mkCanvas(size),x=c.getContext("2d"),S=size;
-  const kind=rint(r,0,4),C=cols.colors;
+  const C=cols.colors;
+  if(kind===undefined)kind=rint(r,0,7);
   x.fillStyle=cols.bg;x.fillRect(0,0,S,S);
   if(kind===0){ // blob gradien mesh
     for(let i=0;i<5;i++){
@@ -452,8 +519,29 @@ function genBackground(r,size,cols){
     const bx=rrange(r,S*0.2,S*0.8),by=rrange(r,S*0.2,S*0.6);
     const g=x.createRadialGradient(bx,by,0,bx,by,S*0.4);g.addColorStop(0,hexA(C[2]||"#ffffff",0.9));g.addColorStop(1,hexA(C[2]||"#ffffff",0));
     x.fillStyle=g;x.beginPath();x.arc(bx,by,S*0.4,0,7);x.fill();
-  }else{ // komposisi memphis
+  }else if(kind===4){ // komposisi memphis
     drawMemphisField(x,r,S,C,cols.bg,0.9);
+  }else if(kind===5){ // halftone radial
+    const gap=S*0.07;
+    for(let gy=gap/2;gy<S;gy+=gap)for(let gx=gap/2;gx<S;gx+=gap){
+      const d=Math.min(1,Math.hypot(gx-S*0.7,gy-S*0.3)/(S*0.75));
+      x.fillStyle=C[Math.floor(d*C.length)%C.length];
+      x.beginPath();x.arc(gx,gy,Math.max(1,gap*0.3*(1-d*0.85)),0,7);x.fill();
+    }
+  }else if(kind===6){ // garis diagonal duotone
+    x.save();x.translate(S/2,S/2);x.rotate(-Math.PI/6);x.translate(-S,-S);
+    const gap=S*0.09;
+    for(let yy=0,i=0;yy<S*2.6;yy+=gap,i++){x.fillStyle=C[i%C.length];x.fillRect(0,yy,S*2.6,gap*0.62)}
+    x.restore();
+    x.fillStyle=hexA("#ffffff",0.1);x.fillRect(0,0,S,S);
+  }else{ // cincin konsentris
+    const ox=S*rrange(r,0.6,0.85),oy=S*rrange(r,0.15,0.4);
+    let i=0;
+    for(let rr=S*1.25;rr>0;rr-=S*0.075,i++){
+      x.strokeStyle=hexA(C[i%C.length],0.55);
+      x.lineWidth=S*0.032;
+      x.beginPath();x.arc(ox,oy,rr,0,7);x.stroke();
+    }
   }
   // vignette lembut
   const v=x.createRadialGradient(S/2,S/2,S*0.35,S/2,S/2,S*0.75);
@@ -490,10 +578,10 @@ function drawMemphisField(x,r,S,C,bg,cover){
     x.restore();
   }
 }
-function genPattern(r,size,cols){
+function genPattern(r,size,cols,kind){
   const c=mkCanvas(size),x=c.getContext("2d"),S=size,C=cols.colors;
   x.fillStyle=cols.bg;x.fillRect(0,0,S,S);
-  const style=rint(r,0,2);
+  const style=kind===undefined?rint(r,0,5):kind;
   if(style===0){ // grid rapi
     const n=rint(r,4,6),cell=S/n;
     for(let gy=0;gy<n;gy++)for(let gx=0;gx<n;gx++){
@@ -509,12 +597,41 @@ function genPattern(r,size,cols){
     }
     x.restore();
     drawMemphisField(x,r,S,C,cols.bg,0.4);
-  }else{ // titik halftone
+  }else if(style===2){ // titik halftone
     const gap=rrange(r,S*0.05,S*0.09);
     for(let yy=gap/2;yy<S;yy+=gap)for(let xx=gap/2;xx<S;xx+=gap){
       const d=Math.hypot(xx-S/2,yy-S/2)/(S/2);
       x.fillStyle=C[rint(r,0,C.length-1)];
       x.beginPath();x.arc(xx,yy,gap*0.28*(1.1-d*0.7),0,7);x.fill();
+    }
+  }else if(style===3){ // papan catur
+    const n=6,cell=S/n;
+    for(let gy=0;gy<n;gy++)for(let gx=0;gx<n;gx++){
+      x.fillStyle=(gx+gy)%2?C[0]:cols.bg;
+      x.fillRect(gx*cell,gy*cell,cell,cell);
+    }
+    x.fillStyle=hexA("#ffffff",0.28);
+    for(let gy=0;gy<n;gy++)for(let gx=0;gx<n;gx++)if((gx+gy)%2){
+      x.beginPath();x.arc((gx+0.5)*cell,(gy+0.5)*cell,cell*0.17,0,7);x.fill();
+    }
+  }else if(style===4){ // garis gelombang
+    x.lineCap="round";
+    const rows=14;
+    for(let i=0;i<rows;i++){
+      const yy=S*(i+0.5)/rows;
+      x.strokeStyle=C[i%C.length];x.lineWidth=S*0.022;
+      x.beginPath();x.moveTo(0,yy);
+      for(let px=0;px<=S;px+=S/30)x.lineTo(px,yy+Math.sin(px/S*6.28+i*1.7)*S*0.02);
+      x.stroke();
+    }
+  }else{ // mozaik segitiga
+    const n=6,cell=S/n;
+    for(let gy=0;gy<n;gy++)for(let gx=0;gx<n;gx++){
+      x.fillStyle=C[(gx+gy*2)%C.length];
+      x.beginPath();
+      if((gx+gy)%2){x.moveTo(gx*cell,gy*cell);x.lineTo((gx+1)*cell,gy*cell);x.lineTo(gx*cell,(gy+1)*cell);}
+      else{x.moveTo((gx+1)*cell,(gy+1)*cell);x.lineTo(gx*cell,(gy+1)*cell);x.lineTo((gx+1)*cell,gy*cell);}
+      x.closePath();x.fill();
     }
   }
   return c;
@@ -569,11 +686,12 @@ function genIcon(r,size,cols){
 }
 
 /* ============ GENERATOR: BINGKAI ============ */
-function genFrame(r,size,cols){
+function genFrame(r,size,cols,kind){
   const c=mkCanvas(size),x=c.getContext("2d"),S=size;
   x.fillStyle=cols.bg;x.fillRect(0,0,S,S);
   const main=cols.colors[0],acc=cols.colors[1]||"#ffffff";
-  const kind=rint(r,0,6),m=S*0.09;
+  const m=S*0.09;
+  if(kind===undefined)kind=rint(r,0,8);
   x.strokeStyle=main;x.fillStyle=main;x.lineCap="round";
   if(kind===0){ // bingkai ganda
     x.lineWidth=S*0.014;x.strokeRect(m,m,S-2*m,S-2*m);
@@ -606,18 +724,39 @@ function genFrame(r,size,cols){
     x.lineWidth=S*0.006;x.beginPath();x.arc(S/2,S/2,S*0.315,0,7);x.stroke();
     for(let i=0;i<24;i++){const a=i/24*Math.PI*2;x.beginPath();x.arc(S/2+Math.cos(a)*S*0.348,S/2+Math.sin(a)*S*0.348,S*0.008,0,7);x.fill()}
     for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4;pathStar5(x,S/2+Math.cos(a)*S*0.348,S/2+Math.sin(a)*S*0.348,S*0.032,S*0.014);x.fill()}
-  }else{ // garis putus-putus
+  }else if(kind===6){ // garis putus-putus
     x.lineWidth=S*0.014;x.strokeRect(m,m,S-2*m,S-2*m);
     x.lineWidth=S*0.01;x.setLineDash([S*0.032,S*0.022]);x.strokeRect(m*1.7,m*1.7,S-3.4*m,S-3.4*m);x.setLineDash([]);
+  }else if(kind===7){ // tiket perforasi
+    x.lineWidth=S*0.012;x.strokeRect(m,m,S-2*m,S-2*m);
+    x.fillStyle=cols.bg;
+    x.beginPath();x.arc(m,S/2,S*0.035,0,7);x.fill();
+    x.beginPath();x.arc(S-m,S/2,S*0.035,0,7);x.fill();
+    x.strokeStyle=main;x.fillStyle=main;
+    x.save();x.setLineDash([S*0.025,S*0.02]);x.lineWidth=S*0.008;
+    x.beginPath();x.moveTo(m,S/2);x.lineTo(S-m,S/2);x.stroke();x.restore();
+    pathStar5(x,S/2,S*0.32,S*0.05,S*0.022);x.fill();
+    pathStar5(x,S/2,S*0.68,S*0.05,S*0.022);x.fill();
+  }else{ // lingkaran ganda + tick
+    x.lineWidth=S*0.014;x.beginPath();x.arc(S/2,S/2,S*0.4,0,7);x.stroke();
+    x.lineWidth=S*0.006;x.beginPath();x.arc(S/2,S/2,S*0.335,0,7);x.stroke();
+    x.lineWidth=S*0.01;
+    for(let i=0;i<36;i++){
+      const a=i/36*Math.PI*2;
+      x.beginPath();
+      x.moveTo(S/2+Math.cos(a)*S*0.4,S/2+Math.sin(a)*S*0.4);
+      x.lineTo(S/2+Math.cos(a)*S*0.43,S/2+Math.sin(a)*S*0.43);
+      x.stroke();
+    }
   }
   return c;
 }
 
 /* ============ GENERATOR: ILUSTRASI FLAT ============ */
-function genFlat(r,size,cols){
+function genFlat(r,size,cols,kind){
   const c=mkCanvas(size),x=c.getContext("2d"),S=size,C=cols.colors;
   const sky=cols.bg,cA=C[0],cB=C[1]||C[0],cC=C[2]||C[0],cD=C[3]||"#223344";
-  const kind=rint(r,0,6);
+  if(kind===undefined)kind=rint(r,0,9);
   const hill=(yB,amp,col,ph)=>{x.fillStyle=col;x.beginPath();x.moveTo(0,S);for(let px=0;px<=S;px+=S/40)x.lineTo(px,yB+Math.sin(px/S*5+ph)*amp);x.lineTo(S,S);x.closePath();x.fill()};
   const sun=(sx,sy,sr,col)=>{x.fillStyle=col;x.beginPath();x.arc(sx,sy,sr,0,7);x.fill()};
   const cloud=(cx,cy,s,col)=>{x.fillStyle=col;x.beginPath();x.arc(cx-s*0.5,cy,s*0.42,0,7);x.arc(cx,cy-s*0.15,s*0.55,0,7);x.arc(cx+s*0.5,cy,s*0.42,0,7);x.fill();x.fillRect(cx-s*0.92,cy,s*1.84,s*0.42)};
@@ -677,7 +816,7 @@ function genFlat(r,size,cols){
     for(let i=0;i<42;i++){x.globalAlpha=rrange(r,0.3,1);x.beginPath();x.arc(r()*S,r()*S*0.62,rrange(r,S*0.002,S*0.006),0,7);x.fill()}
     x.globalAlpha=1;
     hill(S*0.76,S*0.05,shade(cD,20),2);hill(S*0.89,S*0.06,shade(cD,-16),5);
-  }else{ // balon udara
+  }else if(kind===6){ // balon udara
     cloud(S*0.2,S*0.24,S*0.075,hexA(cD,0.2));cloud(S*0.85,S*0.58,S*0.095,hexA(cD,0.2));
     const balloon=(bx,by,s,col1,col2)=>{x.fillStyle=col1;x.beginPath();x.arc(bx,by,s,0,7);x.fill();
       x.fillStyle=col2;x.beginPath();x.moveTo(bx,by-s);x.quadraticCurveTo(bx+s*0.55,by,bx,by+s);x.quadraticCurveTo(bx-s*0.55,by,bx,by-s);x.fill();
@@ -688,15 +827,53 @@ function genFlat(r,size,cols){
     balloon(S*0.68,S*0.52,S*0.075,cB,cC);
     balloon(S*0.5,S*0.2,S*0.055,cC,cA);
     hill(S*0.92,S*0.05,cC,2);
+  }else if(kind===7){ // pulau tropis
+    sun(S*0.78,S*0.2,S*0.1,cA);
+    cloud(S*0.25,S*0.18,S*0.07,hexA(cD,0.18));
+    x.fillStyle=cB;x.fillRect(0,S*0.55,S,S*0.45);
+    x.fillStyle=hexA("#ffffff",0.3);
+    for(let i=0;i<3;i++)x.fillRect(0,S*(0.6+i*0.06),S,S*0.012);
+    hill(S*0.74,S*0.05,cC,2);
+    const px=S*0.5,py=S*0.68;
+    x.strokeStyle=cD;x.lineWidth=S*0.02;
+    x.beginPath();x.moveTo(px,py);x.quadraticCurveTo(px+S*0.03,py-S*0.12,px+S*0.02,py-S*0.2);x.stroke();
+    x.fillStyle=cC;
+    for(let i=0;i<5;i++){
+      const a=Math.PI*(0.08+0.84*i/4);
+      x.save();x.translate(px+S*0.02,py-S*0.2);x.rotate(Math.PI/2-a);
+      x.beginPath();x.ellipse(S*0.065,0,S*0.07,S*0.02,0,0,7);x.fill();x.restore();
+    }
+  }else if(kind===8){ // musim gugur
+    sun(S*0.25,S*0.2,S*0.09,cA);
+    hill(S*0.62,S*0.05,cB,1);hill(S*0.78,S*0.06,cC,3);
+    const tree2=(tx,ty,s)=>{x.fillStyle=cD;x.fillRect(tx-s*0.05,ty,s*0.1,s*0.3);
+      x.fillStyle=cA;x.beginPath();x.arc(tx,ty-s*0.15,s*0.32,0,7);x.fill();
+      x.fillStyle=cB;x.beginPath();x.arc(tx-s*0.12,ty-s*0.28,s*0.16,0,7);x.fill();};
+    tree2(S*0.3,S*0.74,S*0.7);tree2(S*0.62,S*0.78,S*0.9);tree2(S*0.85,S*0.72,S*0.55);
+    x.fillStyle=cA;
+    for(let i=0;i<14;i++){x.globalAlpha=0.65;x.beginPath();x.arc(r()*S,r()*S*0.55,S*0.011,0,7);x.fill()}
+    x.globalAlpha=1;
+  }else{ // air terjun
+    x.fillStyle=cB;x.fillRect(0,0,S*0.3,S);x.fillRect(S*0.7,0,S*0.3,S);
+    x.fillStyle=cD;
+    for(let i=0;i<5;i++){x.fillRect(S*0.05,S*(0.08+i*0.18),S*0.2,S*0.028);x.fillRect(S*0.75,S*(0.12+i*0.18),S*0.2,S*0.028)}
+    x.fillStyle=hexA("#ffffff",0.8);x.fillRect(S*0.3,0,S*0.4,S*0.82);
+    x.fillStyle=cA;x.fillRect(S*0.3,0,S*0.4,S*0.045);
+    x.fillStyle=hexA(cB,0.45);
+    for(let i=0;i<6;i++)x.fillRect(S*(0.345+i*0.05),S*0.1,S*0.014,S*0.62);
+    hill(S*0.9,S*0.04,cC,2);
+    x.fillStyle=hexA("#ffffff",0.5);
+    for(let i=0;i<8;i++)x.beginPath(),x.arc(S*rrange(r,0.35,0.65),S*rrange(r,0.78,0.9),S*rrange(r,0.02,0.05),0,7),x.fill();
   }
   return c;
 }
 
 /* ============ GENERATOR: DIVIDER ============ */
-function genDivider(r,size,cols){
+function genDivider(r,size,cols,kind){
   const c=mkCanvas(size),x=c.getContext("2d"),S=size;
   const main=cols.colors[0],acc=cols.colors[1]||"#ffffff";
-  const kind=rint(r,0,4),cy=S/2;
+  const cy=S/2;
+  if(kind===undefined)kind=rint(r,0,6);
   x.strokeStyle=main;x.fillStyle=main;x.lineCap="round";x.lineWidth=S*0.014;
   const line=(x1,x2)=>{x.beginPath();x.moveTo(x1,cy);x.lineTo(x2,cy);x.stroke()};
   if(kind===0){
@@ -719,11 +896,26 @@ function genDivider(r,size,cols){
     for(let i=0;i<9;i++){const px=S*(0.12+i*0.035),qx=S*(0.88-i*0.035);
       x.beginPath();x.arc(px,cy,S*0.011,0,7);x.fill();x.beginPath();x.arc(qx,cy,S*0.011,0,7);x.fill()}
     drawIconGlyph(x,0,S*0.5,cy,S*0.11,acc,true);
-  }else{
+  }else if(kind===4){
     line(S*0.08,S*0.36);line(S*0.64,S*0.92);
     x.lineWidth=S*0.01;
     for(let i=-1;i<=1;i++){x.beginPath();x.moveTo(S*0.5+i*S*0.03,cy-S*0.02);x.lineTo(S*0.5+i*S*0.055,cy-S*0.085);x.stroke()}
     x.save();x.translate(S*0.5,cy+S*0.045);x.rotate(Math.PI/4);x.fillStyle=main;x.fillRect(-S*0.022,-S*0.022,S*0.044,S*0.044);x.restore();
+  }else if(kind===5){ // zigzag + lingkaran
+    x.lineWidth=S*0.012;
+    x.beginPath();x.moveTo(S*0.08,cy);
+    for(let px=S*0.08;px<=S*0.4;px+=S*0.04)x.lineTo(px,cy+((Math.round(px/S*25)%2)?S*0.022:-S*0.022));
+    x.moveTo(S*0.92,cy);
+    for(let px=S*0.92;px>=S*0.6;px-=S*0.04)x.lineTo(px,cy+((Math.round(px/S*25)%2)?S*0.022:-S*0.022));
+    x.stroke();
+    x.lineWidth=S*0.01;x.beginPath();x.arc(S*0.5,cy,S*0.035,0,7);x.stroke();
+    x.beginPath();x.arc(S*0.5,cy,S*0.012,0,7);x.fill();
+  }else{ // barisan kilau
+    line(S*0.08,S*0.3);line(S*0.7,S*0.92);
+    for(let i=-1;i<=1;i++){
+      pathSparkle(x,S*0.5+i*S*0.12,cy,S*(0.045-Math.abs(i)*0.015));
+      x.fillStyle=i===0?acc:main;x.fill();
+    }
   }
   return c;
 }
@@ -757,24 +949,24 @@ const META={
 };
 const COLOR_EN={Senja:"Warm",Samudra:"Blue",Hutan:"Green",Sakura:"Pink",Emas:"Gold",Mono:"Monochrome",Neon:"Neon",Gurun:"Earth"};
 function snapSettings(){
-  return {cols:curColors(), badgeText:$("optBadgeText").value,
+  return {cols:curColors(), palName:useCustom?"Custom":PALETTES[activePal].name,
+    badgeText:$("optBadgeText").value,
     prefix:$("metaPrefix").value, desc:$("metaDesc").value, extraKw:$("metaKw").value};
 }
-function renderArt(r,cat,size,snap){
+function renderArt(r,cat,size,snap,kind){
   const cols=snap.cols;
-  if(cat==="badge")return genBadge(r,size,cols,snap.badgeText);
-  if(cat==="shape")return genShape(r,size,cols);
-  if(cat==="background")return genBackground(r,size,cols);
-  if(cat==="pattern")return genPattern(r,size,cols);
+  if(cat==="badge")return genBadge(r,size,cols,snap.badgeText,kind);
+  if(cat==="shape")return genShape(r,size,cols,kind);
+  if(cat==="background")return genBackground(r,size,cols,kind);
+  if(cat==="pattern")return genPattern(r,size,cols,kind);
   if(cat==="icon")return genIcon(r,size,cols);
-  if(cat==="frame")return genFrame(r,size,cols);
-  if(cat==="flat")return genFlat(r,size,cols);
-  return genDivider(r,size,cols);
+  if(cat==="frame")return genFrame(r,size,cols,kind);
+  if(cat==="flat")return genFlat(r,size,cols,kind);
+  return genDivider(r,size,cols,kind);
 }
 function buildMeta(r,cat,snap){
-  const m=META[cat],cols=snap.cols;
-  const palName=useCustom?"Custom":PALETTES[activePal].name;
-  const cword=COLOR_EN[palName]||"Colorful";
+  const m=META[cat];
+  const cword=COLOR_EN[snap.palName]||"Colorful";
   const title=pick(r,m.titles).replace("{C}",cword);
   const extra=snap.extraKw.split(",").map(s=>s.trim()).filter(Boolean);
   const kw=[...m.kw];
@@ -782,16 +974,16 @@ function buildMeta(r,cat,snap){
   return {title:((snap.prefix||"").trim()?snap.prefix.trim()+" ":"")+title,
     keywords:kw.slice(0,25), description:(snap.desc||"").trim(), cats:m.cats, en:m.en};
 }
-function makeItem(seedStr,idx,cat,size,snap){
+function makeItem(seedStr,idx,cat,size,snap,kind){
   const rseed=seedStr+":"+idx;
   const r=mulberry32(hashSeed(rseed));
-  const thumb=renderArt(r,cat,440,snap); // thumbnail kecil; full-res di-render ulang saat diunduh
-  const meta=buildMeta(r,cat,snap);
+  const thumb=renderArt(r,cat,440,snap,kind); // thumbnail kecil; full-res di-render ulang saat diunduh
+  const meta=buildMeta(mulberry32(hashSeed(rseed+":meta")),cat,snap);
   const d=todayStr().replace(/-/g,"");
-  return {id:"sg"+Math.floor(r()*1e9).toString(36),cat,rseed,size,snap,meta,thumb,
-    fname:`stockgen-${cat}-${d}-${String(itemSeq++).padStart(2,"0")}`};
+  return {id:"sg"+Math.floor(r()*1e9).toString(36),cat,kind,rseed,size,snap,meta,thumb,
+    fname:`sg-${{badge:"bd",shape:"sp",background:"bk",pattern:"pt",icon:"ik",frame:"fr",flat:"fl",divider:"dv"}[cat]||"xx"}-${d}-${String(itemSeq++).padStart(2,"0")}`};
 }
-function renderFull(it){const r=mulberry32(hashSeed(it.rseed));return renderArt(r,it.cat,it.size,it.snap)}
+function renderFull(it){const r=mulberry32(hashSeed(it.rseed));return renderArt(r,it.cat,it.size,it.snap,it.kind)}
 
 /* ============ STATE & GALERI ============ */
 let items=[], itemSeq=1, detailIdx=-1, autoRunning=false;
@@ -831,10 +1023,22 @@ async function generateBatch(seedStr,label,count){
   const r=mulberry32(hashSeed(seedStr));
   const cats=activeCats();
   const snap=snapSettings();
+  const randPal=$("optRandPal").checked;
+  const bags={}; // anti-pengulangan varian dalam 1 batch per kategori
+  const pickKind=cat=>{
+    const n=KIND_COUNTS[cat];if(!n)return undefined;
+    let bag=bags[cat];if(!bag||!bag.length)bag=bags[cat]=shuffledBag(r,n);
+    return bag.pop();
+  };
   progress(0);
   for(let i=0;i<count;i++){
     const cat=cats[Math.floor(r()*cats.length)];
-    items.push(makeItem(seedStr,i,cat,size,snap));
+    let psnap=snap;
+    if(randPal){ // palet acak per gambar
+      const pi=Math.floor(r()*PALETTES.length);
+      psnap={...snap,cols:PALETTES[pi],palName:PALETTES[pi].name};
+    }
+    items.push(makeItem(seedStr,i,cat,size,psnap,pickKind(cat)));
     progress((i+1)/count);
     if(i%8===7)await new Promise(res=>setTimeout(res,0)); // beri napas ke UI
   }
@@ -843,7 +1047,7 @@ async function generateBatch(seedStr,label,count){
   toast(`✅ ${count} gambar berhasil dibuat`);
 }
 $("btnGenerate").onclick=()=>{if(autoRunning)return;generateBatch("manual-"+Date.now()+"-"+Math.random(),"Paket Manual")};
-$("btnDaily").onclick=()=>{if(autoRunning)return;generateBatch("daily-"+todayStr(),"Paket Harian — "+prettyDate(),70)};
+$("btnDaily").onclick=()=>{if(autoRunning)return;generateBatch("daily-"+todayStr()+"-"+Math.random().toString(36).slice(2),"Paket Harian — "+prettyDate(),70)};
 $("btnClear").onclick=()=>{items=[];itemSeq=1;renderGallery();updatePackBar("Belum ada paket","Klik “Generate Sekarang” atau “Paket Harian” untuk mulai membuat aset.")};
 
 /* ============ DOWNLOAD ============ */
@@ -879,7 +1083,7 @@ $("btnCsv").onclick=()=>{
   if(!items.length)return toast("Galeri masih kosong — generate dulu ya");
   const rows=[["Filename","Title","Keywords","Category"]];
   const fmt=$("optFormat").value,ext=fmt==="jpg"?"jpg":"png";
-  items.forEach(it=>{rows.push([it.fname+"."+ext,it.meta.title,it.meta.keywords.join(", "),it.meta.en])});
+  items.forEach(it=>{const t=it.meta.title.replace(/,/g," ").slice(0,70).trim();rows.push([it.fname+"."+ext,t,it.meta.keywords.join(", "),"8"])});
   const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\r\n");
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"}));
   a.download=`stockgen-metadata-${todayStr()}.csv`;document.body.appendChild(a);a.click();
@@ -935,28 +1139,45 @@ $("btnApplyMeta").onclick=()=>{
   renderGallery();toast("🏷️ Metadata diterapkan ke semua gambar");
 };
 
+/* ============ GANTI WARNA REAL-TIME ============ */
+let recolorT=null;
+function recolorAll(){
+  if(!items.length)return;
+  const cols=curColors(),palName=useCustom?"Custom":PALETTES[activePal].name;
+  for(const it of items){
+    it.snap.cols=cols;it.snap.palName=palName;
+    const r=mulberry32(hashSeed(it.rseed));
+    it.thumb=renderArt(r,it.cat,440,it.snap,it.kind);
+    // judul ikut update kata warnanya
+    const rr=mulberry32(hashSeed(it.rseed+":meta"));
+    it.meta=buildMeta(rr,it.cat,it.snap);
+  }
+  renderGallery();
+}
+function queueRecolor(){clearTimeout(recolorT);recolorT=setTimeout(recolorAll,180)}
+
 /* ============ PALET UI ============ */
 function renderPalettes(){
   const g=$("palGrid");g.innerHTML="";
   PALETTES.forEach((p,i)=>{
     const d=document.createElement("div");d.className="pal"+(i===activePal&&!useCustom?" active":"");
     d.innerHTML=`<div class="sw">${p.colors.map(c=>`<span style="background:${c}"></span>`).join("")}</div><small>${p.name}</small>`;
-    d.onclick=()=>{activePal=i;useCustom=false;renderPalettes()};
+    d.onclick=()=>{activePal=i;useCustom=false;renderPalettes();queueRecolor()};
     g.appendChild(d);
   });
   const dc=document.createElement("div");dc.className="pal"+(useCustom?" active":"");
   dc.innerHTML=`<div class="sw"><span style="background:${$("cbg").value}"></span><span style="background:${$("c1").value}"></span><span style="background:${$("c2").value}"></span></div><small>Custom</small>`;
-  dc.onclick=()=>{useCustom=true;renderPalettes();toast("🎨 Mode warna custom aktif")};
+  dc.onclick=()=>{useCustom=true;renderPalettes();queueRecolor();toast("🎨 Mode warna custom aktif")};
   g.appendChild(dc);
 }
-["c1","c2","cbg"].forEach(id=>$(id).addEventListener("input",()=>{useCustom=true;renderPalettes()}));
+["c1","c2","cbg"].forEach(id=>$(id).addEventListener("input",()=>{useCustom=true;renderPalettes();queueRecolor()}));
 $("btnShufflePal").onclick=()=>{
   const r=Math.random;
   const base=`#${Math.floor(r()*16777215).toString(16).padStart(6,"0")}`;
   const base2=`#${Math.floor(r()*16777215).toString(16).padStart(6,"0")}`;
   $("c1").value=base;$("c2").value=base2;
   $("cbg").value=Math.random()<0.5?"#ffffff":"#111122";
-  useCustom=true;renderPalettes();toast("🎲 Warna diacak");
+  useCustom=true;renderPalettes();queueRecolor();toast("🎲 Warna diacak");
 };
 document.querySelectorAll("#catGrid .catchoice").forEach(el=>{
   el.onclick=()=>{document.querySelectorAll("#catGrid .catchoice").forEach(e=>e.classList.remove("active"));el.classList.add("active")};
